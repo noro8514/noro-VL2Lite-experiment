@@ -1,7 +1,7 @@
 # path to root directory
-# this requires PROJECT_ROOT environment variable to exist
-# you can replace it with "." if you want the root to be the current working directory
-root_dir: ${oc.env:PROJECT_ROOT}
+# this prefers PROJECT_ROOT environment variable when set, otherwise falls back to current
+# working directory. Using '.' as a safe default avoids interpolation parsing errors.
+root_dir: .
 
 # path to data directory
 data_dir: ${paths.root_dir}/data/kd_datasets/

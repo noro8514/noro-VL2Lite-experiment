@@ -123,6 +123,11 @@ class KDModule(LightningModule):
             return weight1, weight2
 
         x, y = batch
+        # ensure target dtype is int64 for cross-entropy on CUDA
+        if torch.is_tensor(y):
+            y = y.to(torch.long)
+        else:
+            y = torch.tensor(y, dtype=torch.long, device=x.device)
         loss_dict = {}
         if self.use_teacher:
             outputs = self.forward(x)

@@ -1,5 +1,5 @@
 defaults:
-  - attributes: 0_CUB_200_2011
+  - attributes: 5_StanfordDogs
 
 data_name: ${data.attributes.name}
 _target_: src.data.kd_datamodule.KDDataModule
@@ -18,6 +18,6 @@ test_dataset:
   split: test
 
 
-batch_size: 512 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
-num_workers: 16
+batch_size: 16 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
+num_workers: 4
 pin_memory: False

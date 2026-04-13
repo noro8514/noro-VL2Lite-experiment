@@ -96,8 +96,24 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         if ckpt_path == "":
             log.warning("Best ckpt not found! Using current weights for testing...")
             ckpt_path = None
-        trainer.test(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
-        log.info(f"Best ckpt path: {ckpt_path}")
+        
+        # Monkey-patch torch.load to disable weights_only during checkpoint loading
+        # This allows Lightning to load checkpoints with custom classes that were pickled
+        original_torch_load = torch.load
+        
+        def patched_torch_load(f, *args, **kwargs):
+            """Wrapper for torch.load that disables weights_only to allow loading custom class checkpoints."""
+            # Force weights_only=False to override any explicit True passed by Lightning
+            kwargs['weights_only'] = False
+            return original_torch_load(f, *args, **kwargs)
+        
+        try:
+            torch.load = patched_torch_load
+            trainer.test(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
+            log.info(f"Best ckpt path: {ckpt_path}")
+        finally:
+            # Restore original torch.load
+            torch.load = original_torch_load
 
     test_metrics = trainer.callback_metrics
 
